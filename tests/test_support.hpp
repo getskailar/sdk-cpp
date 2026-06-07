@@ -5,12 +5,31 @@
 
 #include <skailar/skailar.hpp>
 
+#include <cstdlib>
 #include <string>
 
 namespace skailar::testing {
 
 /// A syntactically valid test API key (never sent to a real gateway).
 inline constexpr const char* kTestKey = "skl_live_0123456789012345678901234567890123456789012";
+
+/// Sets an environment variable, portably across POSIX and Windows.
+inline void set_env(const char* name, const char* value) {
+#ifdef _WIN32
+    _putenv_s(name, value);
+#else
+    ::setenv(name, value, 1);
+#endif
+}
+
+/// Clears an environment variable, portably across POSIX and Windows.
+inline void unset_env(const char* name) {
+#ifdef _WIN32
+    _putenv_s(name, "");
+#else
+    ::unsetenv(name);
+#endif
+}
 
 /// Builds a Client pointed at a MockServer with the test key and no retries.
 inline Client make_client(const MockServer& server, int max_retries = 0) {

@@ -12,7 +12,7 @@ using namespace skailar;
 using namespace skailar::testing;
 
 TEST(Client, MissingApiKeyThrowsConfig) {
-    ::unsetenv("SKAILAR_API_KEY");
+    unset_env("SKAILAR_API_KEY");
     ClientConfig cfg;
     cfg.base_url = "http://127.0.0.1:1";
     try {
@@ -43,14 +43,14 @@ TEST(Client, ReadsApiKeyFromEnvironment) {
         res.set_content(R"({"status":"ok","user_id":"u-1"})", "application/json");
     });
 
-    ::setenv("SKAILAR_API_KEY", kTestKey, 1);
+    set_env("SKAILAR_API_KEY", kTestKey);
     ClientConfig cfg;
     cfg.base_url = server.base_url();
     Client client(cfg);
     const PingKeyResponse resp = client.ping();
     EXPECT_EQ(resp.status, "ok");
     EXPECT_EQ(resp.user_id, "u-1");
-    ::unsetenv("SKAILAR_API_KEY");
+    unset_env("SKAILAR_API_KEY");
 }
 
 TEST(Client, DefaultHeaderIsSent) {

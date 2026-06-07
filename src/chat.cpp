@@ -7,7 +7,7 @@
 #include <skailar/streaming.hpp>
 
 #include <memory>
-#include <utility>
+#include <string>
 
 #include <nlohmann/json.hpp>
 
@@ -28,8 +28,8 @@ std::unique_ptr<ChatCompletionStream>
 ChatCompletionsResource::create_stream(const ChatCompletionRequest& request) const {
     ChatCompletionRequest streamed = request;
     streamed.stream = true;
-    std::string body = nlohmann::json(streamed).dump();
-    return detail::open_chat_stream(client_->impl()->ctx(), kChatCompletionsPath, std::move(body));
+    const std::string body = nlohmann::json(streamed).dump();
+    return detail::open_chat_stream(client_->impl()->ctx(), kChatCompletionsPath, body);
 }
 
 } // namespace skailar
