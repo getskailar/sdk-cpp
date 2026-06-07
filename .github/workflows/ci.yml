@@ -54,7 +54,7 @@ jobs:
         run: echo "skip=true" >> "$GITHUB_ENV"
         shell: bash
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: ${{ !env.skip }}
 
       - name: Set up vcpkg
@@ -90,7 +90,7 @@ jobs:
     name: Lint (clang-format + clang-tidy)
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install tooling
         run: |
