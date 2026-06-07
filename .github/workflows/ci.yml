@@ -25,7 +25,7 @@ jobs:
             cxx: g++-11
             build_type: Debug
           - name: macOS Release
-            os: macos-13
+            os: macos-14
             cc: clang
             cxx: clang++
             build_type: Release
