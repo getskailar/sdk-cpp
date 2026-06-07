@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 10ceb139a610ebf3c6aa49cdc4a4b7f3db5d3f2b
+
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DSKAILAR_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Release
+
+      - name: Stage install tree
+        run: cmake --install build --prefix "${{ runner.temp }}/skailar-${{ github.ref_name }}"
+
+      - name: Package
+        run: |
+          cd "${{ runner.temp }}"
+          tar -czf "skailar-${{ github.ref_name }}-linux-x86_64.tar.gz" "skailar-${{ github.ref_name }}"
+
+      - name: Extract changelog section
+        id: changelog
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v ver="$version" '
+            $0 ~ "^## \\[" ver "\\]" { capture = 1; next }
+            capture && /^## \[/ { exit }
+            capture { print }
+          ' CHANGELOG.md > release_notes.md
+          echo "notes_file=release_notes.md" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ steps.changelog.outputs.notes_file }}
+          files: ${{ runner.temp }}/skailar-${{ github.ref_name }}-linux-x86_64.tar.gz
+          draft: false
+          prerelease: true

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "skailar-sdk-cpp",
+  "version-string": "0.0.1",
+  "description": "Official C++ SDK for the Skailar API",
+  "homepage": "https://github.com/getskailar/sdk-cpp",
+  "license": "MIT",
+  "dependencies": [
+    "curl",
+    "nlohmann-json"
+  ],
+  "features": {
+    "tests": {
+      "description": "Build the test suite",
+      "dependencies": [
+        "gtest",
+        "cpp-httplib"
+      ]
+    }
+  }
+}

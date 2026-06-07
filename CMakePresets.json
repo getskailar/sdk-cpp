@@ -1,0 +1,75 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default (vcpkg manifest mode)",
+      "description": "Resolves dependencies via vcpkg. Requires VCPKG_ROOT in the environment.",
+      "binaryDir": "${sourceDir}/build",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SKAILAR_BUILD_TESTS": "ON",
+        "SKAILAR_BUILD_EXAMPLES": "ON"
+      }
+    },
+    {
+      "name": "ci-debug",
+      "inherits": "default",
+      "displayName": "CI Debug",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SKAILAR_BUILD_TESTS": "ON",
+        "SKAILAR_BUILD_EXAMPLES": "ON",
+        "SKAILAR_WERROR": "ON"
+      }
+    },
+    {
+      "name": "ci-release",
+      "inherits": "default",
+      "displayName": "CI Release",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "SKAILAR_BUILD_TESTS": "ON",
+        "SKAILAR_BUILD_EXAMPLES": "ON",
+        "SKAILAR_WERROR": "ON"
+      }
+    },
+    {
+      "name": "local",
+      "displayName": "Local (system/Homebrew packages)",
+      "description": "No vcpkg toolchain; resolves CURL and nlohmann_json from the system or CMAKE_PREFIX_PATH.",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SKAILAR_BUILD_TESTS": "ON",
+        "SKAILAR_BUILD_EXAMPLES": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "default", "configurePreset": "default" },
+    { "name": "ci-debug", "configurePreset": "ci-debug" },
+    { "name": "ci-release", "configurePreset": "ci-release" },
+    { "name": "local", "configurePreset": "local" }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "local",
+      "configurePreset": "local",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}

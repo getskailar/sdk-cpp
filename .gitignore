@@ -1,0 +1,35 @@
+# Build output
+/build/
+/build-*/
+/out/
+cmake-build-*/
+
+# CMake user presets
+CMakeUserPresets.json
+
+# vcpkg
+/vcpkg_installed/
+/vcpkg/
+
+# Generated headers
+include/skailar/version.hpp
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+.cache/
+*.swp
+*.user
+
+# Compiled artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.pdb

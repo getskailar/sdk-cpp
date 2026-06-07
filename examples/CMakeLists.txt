@@ -1,0 +1,11 @@
+function(skailar_add_example name)
+  add_executable(${name}_example ${name}/main.cpp)
+  target_link_libraries(${name}_example PRIVATE Skailar::skailar)
+  set_target_properties(${name}_example PROPERTIES OUTPUT_NAME ${name})
+endfunction()
+
+skailar_add_example(chat)
+skailar_add_example(streaming)
+skailar_add_example(vision)
+skailar_add_example(tool_calling)
+skailar_add_example(speech)

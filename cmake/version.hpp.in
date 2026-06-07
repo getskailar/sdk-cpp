@@ -1,0 +1,23 @@
+#ifndef SKAILAR_VERSION_HPP
+#define SKAILAR_VERSION_HPP
+
+/// Major version component of the SDK.
+#define SKAILAR_VERSION_STRING "@PROJECT_VERSION@"
+
+namespace skailar {
+
+/// Major version component of the SDK (semantic versioning).
+inline constexpr int SKAILAR_VERSION_MAJOR = @PROJECT_VERSION_MAJOR@;
+
+/// Minor version component of the SDK (semantic versioning).
+inline constexpr int SKAILAR_VERSION_MINOR = @PROJECT_VERSION_MINOR@;
+
+/// Patch version component of the SDK (semantic versioning).
+inline constexpr int SKAILAR_VERSION_PATCH = @PROJECT_VERSION_PATCH@;
+
+/// Human-readable version string, for example "0.0.1".
+inline constexpr const char* version() noexcept { return SKAILAR_VERSION_STRING; }
+
+} // namespace skailar
+
+#endif // SKAILAR_VERSION_HPP

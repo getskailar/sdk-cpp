@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Pull requests run this lean set (~7 min).
+          - name: Ubuntu GCC 11 Debug
+            os: ubuntu-22.04
+            cc: gcc-11
+            cxx: g++-11
+            build_type: Debug
+          - name: macOS Release
+            os: macos-13
+            cc: clang
+            cxx: clang++
+            build_type: Release
+          - name: Windows MSVC Release
+            os: windows-2022
+            cc: cl
+            cxx: cl
+            build_type: Release
+            werror: "OFF"
+          # Pushes to main add the rest of the matrix.
+          - name: Ubuntu Clang 14 Debug
+            os: ubuntu-22.04
+            cc: clang-14
+            cxx: clang++-14
+            build_type: Debug
+            push_only: true
+          - name: Ubuntu GCC 11 Release
+            os: ubuntu-22.04
+            cc: gcc-11
+            cxx: g++-11
+            build_type: Release
+            push_only: true
+    steps:
+      - name: Skip push-only entries on pull requests
+        if: matrix.push_only && github.event_name != 'push'
+        run: echo "skip=true" >> "$GITHUB_ENV"
+        shell: bash
+
+      - uses: actions/checkout@v4
+        if: ${{ !env.skip }}
+
+      - name: Set up vcpkg
+        if: ${{ !env.skip }}
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 10ceb139a610ebf3c6aa49cdc4a4b7f3db5d3f2b
+
+      - name: Configure
+        if: ${{ !env.skip }}
+        shell: bash
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DSKAILAR_BUILD_TESTS=ON
+          -DSKAILAR_BUILD_EXAMPLES=ON
+          -DSKAILAR_WERROR=${{ matrix.werror || 'ON' }}
+
+      - name: Build
+        if: ${{ !env.skip }}
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
+
+      - name: Test
+        if: ${{ !env.skip }}
+        run: ctest --test-dir build --output-on-failure -C ${{ matrix.build_type }}
+
+  lint:
+    name: Lint (clang-format + clang-tidy)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format-14 clang-tidy-14
+
+      - name: clang-format
+        run: |
+          shopt -s globstar
+          clang-format-14 --dry-run --Werror \
+            include/skailar/**/*.hpp src/**/*.cpp src/**/*.hpp tests/**/*.cpp tests/**/*.hpp \
+            examples/**/*.cpp
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 10ceb139a610ebf3c6aa49cdc4a4b7f3db5d3f2b
+
+      - name: Configure for clang-tidy
+        run: >
+          cmake -S . -B build
+          -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          -DSKAILAR_BUILD_TESTS=OFF
+
+      - name: clang-tidy
+        run: clang-tidy-14 -p build $(find src -name '*.cpp')
