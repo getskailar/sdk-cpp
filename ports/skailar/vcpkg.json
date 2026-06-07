@@ -1,0 +1,20 @@
+{
+  "name": "skailar",
+  "version": "0.0.1",
+  "description": "Official C++ SDK for the Skailar API, an OpenAI-compatible multi-provider LLM gateway.",
+  "homepage": "https://github.com/getskailar/sdk-cpp",
+  "license": "MIT",
+  "supports": "!uwp",
+  "dependencies": [
+    "curl",
+    "nlohmann-json",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}
