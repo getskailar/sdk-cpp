@@ -18,12 +18,36 @@ and [nlohmann/json](https://github.com/nlohmann/json) (≥ 3.10).
 
 ### vcpkg
 
-> Not yet published to the vcpkg registry. Until then, use FetchContent or a
-> system install. Once published:
+The SDK is distributed from its own vcpkg registry. Add it to your project's
+`vcpkg-configuration.json` once:
+
+```json
+{
+  "default-registry": {
+    "kind": "git",
+    "repository": "https://github.com/microsoft/vcpkg",
+    "baseline": "<your usual baseline>"
+  },
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://github.com/getskailar/sdk-cpp",
+      "baseline": "<latest commit on main>",
+      "packages": ["skailar"]
+    }
+  ]
+}
+```
+
+Then install it like any other port. The port is **static-only**, so use a
+static triplet on Windows:
 
 ```sh
-vcpkg install skailar-sdk-cpp
+vcpkg install skailar                      # Linux / macOS (static by default)
+vcpkg install skailar:x64-windows-static   # Windows
 ```
+
+Set the `baseline` of the Skailar registry to the latest commit SHA of `main`.
 
 ### CMake FetchContent
 
